@@ -1,5 +1,9 @@
 import React from "react";
-import { __RouterContext as RouterContext } from "react-router";
+import {
+  __HistoryContext as HistoryContext,
+  __LocationContext as LocationContext,
+  composeContextConsumer
+} from "react-router";
 import PropTypes from "prop-types";
 import invariant from "tiny-invariant";
 import {
@@ -82,40 +86,37 @@ const Link = forwardRef(
     },
     forwardedRef
   ) => {
-    return (
-      <RouterContext.Consumer>
-        {context => {
-          invariant(context, "You should not use <Link> outside a <Router>");
+    return composeContextConsumer(
+      [HistoryContext, LocationContext],
+      (history, locationContext) => {
+        invariant(history, "You should not use <Link> outside a <Router>");
 
-          const { history } = context;
+        const location = normalizeToLocation(
+          resolveToLocation(to, locationContext),
+          locationContext
+        );
 
-          const location = normalizeToLocation(
-            resolveToLocation(to, context.location),
-            context.location
-          );
+        const href = location ? history.createHref(location) : "";
+        const props = {
+          ...rest,
+          href,
+          navigate() {
+            const location = resolveToLocation(to, locationContext);
+            const method = replace ? history.replace : history.push;
 
-          const href = location ? history.createHref(location) : "";
-          const props = {
-            ...rest,
-            href,
-            navigate() {
-              const location = resolveToLocation(to, context.location);
-              const method = replace ? history.replace : history.push;
-
-              method(location);
-            }
-          };
-
-          // React 15 compat
-          if (forwardRefShim !== forwardRef) {
-            props.ref = forwardedRef || innerRef;
-          } else {
-            props.innerRef = innerRef;
+            method(location);
           }
+        };
 
-          return React.createElement(component, props);
-        }}
-      </RouterContext.Consumer>
+        // React 15 compat
+        if (forwardRefShim !== forwardRef) {
+          props.ref = forwardedRef || innerRef;
+        } else {
+          props.innerRef = innerRef;
+        }
+
+        return React.createElement(component, props);
+      }
     );
   }
 );

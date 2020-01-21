@@ -1,5 +1,5 @@
 import React from "react";
-import { __RouterContext as RouterContext, matchPath } from "react-router";
+import { __LocationContext as LocationContext, matchPath } from "react-router";
 import PropTypes from "prop-types";
 import invariant from "tiny-invariant";
 import Link from "./Link.js";
@@ -41,11 +41,11 @@ const NavLink = forwardRef(
     forwardedRef
   ) => {
     return (
-      <RouterContext.Consumer>
+      <LocationContext.Consumer>
         {context => {
           invariant(context, "You should not use <NavLink> outside a <Router>");
 
-          const currentLocation = locationProp || context.location;
+          const currentLocation = locationProp || context;
           const toLocation = normalizeToLocation(
             resolveToLocation(to, currentLocation),
             currentLocation
@@ -88,7 +88,7 @@ const NavLink = forwardRef(
 
           return <Link {...props} />;
         }}
-      </RouterContext.Consumer>
+      </LocationContext.Consumer>
     );
   }
 );

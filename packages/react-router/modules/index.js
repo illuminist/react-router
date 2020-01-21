@@ -36,4 +36,9 @@ import { useHistory, useLocation, useParams, useRouteMatch } from "./hooks.js";
 export { useHistory, useLocation, useParams, useRouteMatch };
 
 export { default as __HistoryContext } from "./HistoryContext.js";
+export { default as __LocationContext } from "./LocationContext.js";
+export { default as __MatchContext } from "./MatchContext.js";
 export { default as __RouterContext } from "./RouterContext.js";
+export { default as __StaticContextContext } from "./StaticContextContext.js";
+export { default as composeContextConsumer } from "./composeContextConsumer.js";
+export { default as composeContextProvider } from "./composeContextProvider.js";

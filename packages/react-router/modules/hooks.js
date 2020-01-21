@@ -1,7 +1,6 @@
 import React from "react";
 import invariant from "tiny-invariant";
 
-import Context from "./RouterContext.js";
 import HistoryContext from "./HistoryContext.js";
 import LocationContext from "./LocationContext.js";
 import MatchContext from "./MatchContext.js";

@@ -5,7 +5,6 @@ import invariant from "tiny-invariant";
 
 import Lifecycle from "./Lifecycle.js";
 import HistoryContext from "./HistoryContext.js";
-import RouterContext from "./RouterContext.js";
 import StaticContextContext from "./StaticContextContext.js";
 
 import generatePath from "./generatePath.js";

@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import invariant from "tiny-invariant";
 
 import Lifecycle from "./Lifecycle.js";
-import RouterContext from "./RouterContext.js";
 import HistoryContext from "./HistoryContext.js";
 import StaticContextContext from "./StaticContextContext.js";
 import composeContextConsumer from "./composeContextConsumer.js";
