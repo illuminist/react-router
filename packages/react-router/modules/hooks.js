@@ -3,6 +3,8 @@ import invariant from "tiny-invariant";
 
 import Context from "./RouterContext.js";
 import HistoryContext from "./HistoryContext.js";
+import LocationContext from "./LocationContext.js";
+import MatchContext from "./MatchContext.js";
 import matchPath from "./matchPath.js";
 
 const useContext = React.useContext;
@@ -26,7 +28,7 @@ export function useLocation() {
     );
   }
 
-  return useContext(Context).location;
+  return useContext(LocationContext);
 }
 
 export function useParams() {
@@ -37,7 +39,7 @@ export function useParams() {
     );
   }
 
-  const match = useContext(Context).match;
+  const match = useContext(MatchContext);
   return match ? match.params : {};
 }
 
@@ -50,7 +52,7 @@ export function useRouteMatch(path) {
   }
 
   const location = useLocation();
-  const match = useContext(Context).match;
+  const match = useContext(MatchContext);
 
   return path ? matchPath(location.pathname, path) : match;
 }

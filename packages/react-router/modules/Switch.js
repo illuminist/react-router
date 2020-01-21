@@ -3,44 +3,49 @@ import PropTypes from "prop-types";
 import invariant from "tiny-invariant";
 import warning from "tiny-warning";
 
-import RouterContext from "./RouterContext.js";
+import LocationContext from "./LocationContext.js";
+import MatchContext from "./MatchContext.js";
 import matchPath from "./matchPath.js";
+
+import composeContextConsumer from "./composeContextConsumer.js";
 
 /**
  * The public API for rendering the first <Route> that matches.
  */
 class Switch extends React.Component {
   render() {
-    return (
-      <RouterContext.Consumer>
-        {context => {
-          invariant(context, "You should not use <Switch> outside a <Router>");
+    return composeContextConsumer(
+      [LocationContext, MatchContext],
+      (contextLocation, matchContext) => {
+        invariant(
+          contextLocation,
+          "You should not use <Switch> outside a <Router>"
+        );
 
-          const location = this.props.location || context.location;
+        const location = this.props.location || contextLocation;
 
-          let element, match;
+        let element, match;
 
-          // We use React.Children.forEach instead of React.Children.toArray().find()
-          // here because toArray adds keys to all child elements and we do not want
-          // to trigger an unmount/remount for two <Route>s that render the same
-          // component at different URLs.
-          React.Children.forEach(this.props.children, child => {
-            if (match == null && React.isValidElement(child)) {
-              element = child;
+        // We use React.Children.forEach instead of React.Children.toArray().find()
+        // here because toArray adds keys to all child elements and we do not want
+        // to trigger an unmount/remount for two <Route>s that render the same
+        // component at different URLs.
+        React.Children.forEach(this.props.children, child => {
+          if (match == null && React.isValidElement(child)) {
+            element = child;
 
-              const path = child.props.path || child.props.from;
+            const path = child.props.path || child.props.from;
 
-              match = path
-                ? matchPath(location.pathname, { ...child.props, path })
-                : context.match;
-            }
-          });
+            match = path
+              ? matchPath(location.pathname, { ...child.props, path })
+              : matchContext;
+          }
+        });
 
-          return match
-            ? React.cloneElement(element, { location, computedMatch: match })
-            : null;
-        }}
-      </RouterContext.Consumer>
+        return match
+          ? React.cloneElement(element, { location, computedMatch: match })
+          : null;
+      }
     );
   }
 }

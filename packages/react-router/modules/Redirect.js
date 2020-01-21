@@ -4,60 +4,61 @@ import { createLocation, locationsAreEqual } from "history";
 import invariant from "tiny-invariant";
 
 import Lifecycle from "./Lifecycle.js";
+import HistoryContext from "./HistoryContext.js";
 import RouterContext from "./RouterContext.js";
+import StaticContextContext from "./StaticContextContext.js";
+
 import generatePath from "./generatePath.js";
+import composeContextConsumer from "./composeContextConsumer.js";
 
 /**
  * The public API for navigating programmatically with a component.
  */
 function Redirect({ computedMatch, to, push = false }) {
-  return (
-    <RouterContext.Consumer>
-      {context => {
-        invariant(context, "You should not use <Redirect> outside a <Router>");
+  return composeContextConsumer(
+    [HistoryContext, StaticContextContext],
+    (history, staticContext) => {
+      invariant(history, "You should not use <Redirect> outside a <Router>");
 
-        const { history, staticContext } = context;
-
-        const method = push ? history.push : history.replace;
-        const location = createLocation(
-          computedMatch
-            ? typeof to === "string"
-              ? generatePath(to, computedMatch.params)
-              : {
-                  ...to,
-                  pathname: generatePath(to.pathname, computedMatch.params)
-                }
-            : to
-        );
-
-        // When rendering in a static context,
-        // set the new location immediately.
-        if (staticContext) {
-          method(location);
-          return null;
-        }
-
-        return (
-          <Lifecycle
-            onMount={() => {
-              method(location);
-            }}
-            onUpdate={(self, prevProps) => {
-              const prevLocation = createLocation(prevProps.to);
-              if (
-                !locationsAreEqual(prevLocation, {
-                  ...location,
-                  key: prevLocation.key
-                })
-              ) {
-                method(location);
+      const method = push ? history.push : history.replace;
+      const location = createLocation(
+        computedMatch
+          ? typeof to === "string"
+            ? generatePath(to, computedMatch.params)
+            : {
+                ...to,
+                pathname: generatePath(to.pathname, computedMatch.params)
               }
-            }}
-            to={to}
-          />
-        );
-      }}
-    </RouterContext.Consumer>
+          : to
+      );
+
+      // When rendering in a static context,
+      // set the new location immediately.
+      if (staticContext) {
+        method(location);
+        return null;
+      }
+
+      return (
+        <Lifecycle
+          onMount={() => {
+            method(location);
+          }}
+          onUpdate={(self, prevProps) => {
+            const prevLocation = createLocation(prevProps.to);
+            if (
+              !locationsAreEqual(prevLocation, {
+                ...location,
+                key: prevLocation.key
+              })
+            ) {
+              method(location);
+            }
+          }}
+          to={to}
+        />
+      );
+    }
   );
 }
 

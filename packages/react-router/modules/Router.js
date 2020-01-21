@@ -3,7 +3,12 @@ import PropTypes from "prop-types";
 import warning from "tiny-warning";
 
 import HistoryContext from "./HistoryContext.js";
+import LocationContext from "./LocationContext.js";
+import MatchContext from "./MatchContext.js";
 import RouterContext from "./RouterContext.js";
+import StaticContextContext from "./StaticContextContext.js";
+
+import composeContextProvider from "./composeContextProvider.js";
 
 /**
  * The public API for putting history on context.
@@ -52,20 +57,24 @@ class Router extends React.Component {
   }
 
   render() {
-    return (
-      <RouterContext.Provider
-        value={{
-          history: this.props.history,
-          location: this.state.location,
-          match: Router.computeRootMatch(this.state.location.pathname),
-          staticContext: this.props.staticContext
-        }}
-      >
-        <HistoryContext.Provider
-          children={this.props.children || null}
-          value={this.props.history}
-        />
-      </RouterContext.Provider>
+    const match = Router.computeRootMatch(this.state.location.pathname);
+    return composeContextProvider(
+      [
+        [
+          RouterContext,
+          {
+            history: this.props.history,
+            location: this.state.location,
+            match,
+            staticContext: this.props.staticContext
+          }
+        ],
+        [HistoryContext, this.props.history],
+        [LocationContext, this.state.location],
+        [MatchContext, match],
+        [StaticContextContext, this.props.staticContext]
+      ],
+      this.props.children || null
     );
   }
 }
